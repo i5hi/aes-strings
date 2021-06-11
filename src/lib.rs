@@ -1,8 +1,6 @@
-// use std::iter::repeat;
 use openssl::symm;
 use std::str;
 use rand::prelude::*;
-
 use rand_seeder::{Seeder};
 
 /// Create a random 256 bit key to use for aes encryption.
@@ -10,18 +8,18 @@ use rand_seeder::{Seeder};
 pub fn _keygen()->String{
     let key: Vec<u8> =rand::thread_rng().gen::<[u8; 32]>().to_vec();
     base64::encode(key)
-
 }
 
 /// Create a seeded 256 bit key to use for aes encryption.
 /// This is used to convert a user provided String key into a compliant aes key.
-pub fn seedgen(seed:String)->String{
-    let seed: [u8; 32] = Seeder::from(seed.as_str()).make_seed();
+pub fn seedgen(seed:&str)->String{
+    let seed: [u8; 32] = Seeder::from(seed).make_seed();
     base64::encode(seed)
 }
 
 /// String wrapper for AES-256-CBC encrypt w/iv
-pub fn encrypt(plaintext:String, key: String)->String{
+/// input Plaintext, outputs IVEString
+pub fn encrypt(plaintext:&str, key: &str)->String{
     let iv = rand::thread_rng().gen::<[u8; 16]>().to_vec();
     let cipher = symm::Cipher::aes_256_cbc();
     let ciphertext = symm::encrypt(
@@ -35,7 +33,8 @@ pub fn encrypt(plaintext:String, key: String)->String{
 }
 
 /// String wrapper for AES-256-CBC decrypt w/iv
-pub fn decrypt(iv_ciphertext:String, key: String)->String{
+/// input IVEString, outputs Plaintext
+pub fn decrypt(iv_ciphertext:&str, key: &str)->String{
     let cipher = symm::Cipher::aes_256_cbc();
     let iter:Vec<&str> = iv_ciphertext.split(":").collect();
     // println!("{}, {}", iter[0], iter[1]);
@@ -63,22 +62,21 @@ mod tests {
 
     #[test]
     fn test_seedgen(){
-        let seed1 = seedgen(String::from("myseed"));
-        let seed2 = seedgen(String::from("myseed"));
+        let seed1 = seedgen("myseed");
+        let seed2 = seedgen("myseed");
         assert_eq!(seed1,seed2);
-        println!("SEEDED KEY:  {}",seed1);
-        println!("SEEDED KEY:  {}",seed2);
-
+        // println!("SEEDED KEY:  {}",seed1);
+        // println!("SEEDED KEY:  {}",seed2);
     }
 
     #[test]
     fn test_aes(){
-        let secret = String::from("thesecretsauce");
-        let key = seedgen(String::from("a79FAWI1IKtuwoSoT3hq0lfkq0oxchoHy1xhOTSpHaU="));
-        let iv_ciphertext = encrypt(secret.clone(),key.clone());
-        println!("IV ENCRYPTED SECRET:  {}",&iv_ciphertext);
-        let plaintext = decrypt(iv_ciphertext.clone(), key.clone());
-        println!("IV DECRYPTED SECRET:  {}",&plaintext);
+        let secret = "thesecretsauce";
+        let key = seedgen("a79FAWI1IKtuwoSoT3hq0lfkq0oxchoHy1xhOTSpHaU=");
+        let iv_ciphertext = encrypt(secret.clone(),&key.clone());
+        // println!("IV ENCRYPTED SECRET:  {}",&iv_ciphertext);
+        let plaintext = decrypt(&iv_ciphertext.clone(), &key.clone());
+        // println!("IV DECRYPTED SECRET:  {}",&plaintext);
         assert_eq!(secret,plaintext)
     }
 }
