@@ -6,7 +6,7 @@ use rand::prelude::*;
 use rand_seeder::{Seeder};
 
 /// Create a random 256 bit key to use for aes encryption.
-/// This is used if the user wants a strong from the application.
+/// This is used if the user wants a strong(ish) key from the application.
 pub fn _keygen()->String{
     let key: Vec<u8> =rand::thread_rng().gen::<[u8; 32]>().to_vec();
     base64::encode(key)
