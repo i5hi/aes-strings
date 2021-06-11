@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn test_aes(){
         let secret = String::from("thesecretsauce");
-        let key = String::from("a79FAWI1IKtuwoSoT3hq0lfkq0oxchoHy1xhOTSpHaU=");
+        let key = seedgen(String::from("a79FAWI1IKtuwoSoT3hq0lfkq0oxchoHy1xhOTSpHaU="));
         let iv_ciphertext = encrypt(secret.clone(),key.clone());
         println!("IV ENCRYPTED SECRET:  {}",&iv_ciphertext);
         let plaintext = decrypt(iv_ciphertext.clone(), key.clone());
